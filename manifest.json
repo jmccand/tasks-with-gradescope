@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "G-Tasks Easy",
+    "description": "Easily add tasks to Google Tasks from any page!",
+    "version": "1.0",
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "checkbox.png"
+    },
+    "content_scripts": [
+      {
+        "matches": [
+            "https://www.gradescope.com/courses/*"
+        ],
+        "js": ["scripts/gradescope_content.js"]
+      }
+    ]
+}
