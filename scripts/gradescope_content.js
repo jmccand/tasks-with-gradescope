@@ -34,6 +34,13 @@ if (header && rows) {
         addToTasksButton.style.borderRadius = "200px";
         addToTasksButton.style.padding = "5px 10px";
         // add to DOM
+        addToTasksButton.addEventListener("click", function() {
+            (async () => {
+                const response = await chrome.runtime.sendMessage({type: "addTask", task: row});
+                console.log("response", response);
+            })();
+        }
+        );
         addToTasksTd.appendChild(addToTasksButton);
         row.appendChild(addToTasksTd);
     }
