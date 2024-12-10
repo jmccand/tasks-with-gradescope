@@ -1,20 +1,31 @@
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         (async () => {
+            sendResponse(request);
             const token = await getAuthToken(true);
-            const response = await fetch("https://www.googleapis.com/tasks/v1/users/@me/lists", {
-                method: "POST",
+
+            // get task lists
+            const taskListResponse = await fetch("https://www.googleapis.com/tasks/v1/users/@me/lists", {
+                method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
             });
+            const taskListJson = await taskListResponse.json();
 
-            console.log("response", response);
-
-            const json = await response.json();
-            console.log("response", json);
-            sendResponse(json);
+            // add to task list
+            const taskListId = taskListJson.items[0].id;
+            const taskResponse = await fetch(`https://www.googleapis.com/tasks/v1/lists/${taskListId}/tasks`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(request)
+            });
+            
+            sendResponse(taskResponse);
         })();
         return true;
     }

@@ -36,7 +36,15 @@ if (header && rows) {
         // add to DOM
         addToTasksButton.addEventListener("click", function() {
             (async () => {
-                const response = await chrome.runtime.sendMessage({type: "addTask", task: row});
+                // get task details from row
+                const dueDateString = row.querySelector("time.submissionTimeChart--dueDate").textContent;
+                const dueDate = convertToDate(dueDateString);
+                const taskDetails = {
+                    title: row.querySelector("th").textContent,
+                    status: "needsAction",
+                    due: dueDate.toISOString(),
+                };
+                const response = await chrome.runtime.sendMessage(taskDetails);
                 console.log("response", response);
             })();
         }
@@ -45,3 +53,22 @@ if (header && rows) {
         row.appendChild(addToTasksTd);
     }
 }
+
+function convertToDate(dateString) {
+    // Extract the month, day, time, and period (AM/PM) from a string
+    const regex = /(\w{3}) (\d{1,2}) at (\d{1,2}:\d{2})(AM|PM)/;
+    const match = dateString.match(regex);
+  
+    if (!match) {
+      throw new Error("Invalid date format");
+    }
+  
+    const [_, month, day, time, period] = match;
+  
+    // Construct a Date string with the current year
+    const currentYear = new Date().getFullYear();
+    const dateStr = `${month} ${day} ${currentYear} ${time} ${period}`;
+  
+    // Parse the date string into a Date object
+    return new Date(dateStr);
+  }
