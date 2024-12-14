@@ -73,7 +73,8 @@ if (header && rows) {
 
 function convertToDate(dateString) {
     // Extract the month, day, time, and period (AM/PM) from a string
-    const regex = /(\w{3}) (\d{1,2}) at (\d{1,2}:\d{2})(AM|PM)/;
+    console.log(dateString);
+    const regex = /(\w{3}) +(\d{1,2}) +at +(\d{1,2}:\d{2})(AM|PM)/;
     const match = dateString.match(regex);
   
     if (!match) {
