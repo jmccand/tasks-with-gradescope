@@ -1,7 +1,6 @@
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         (async () => {
-            sendResponse(request);
             const token = await getAuthToken(true);
 
             // get task lists
@@ -24,8 +23,13 @@ chrome.runtime.onMessage.addListener(
                 },
                 body: JSON.stringify(request)
             });
+
+            const response = {
+                taskLists: taskListJson.items,
+                selected: 0,
+            };
             
-            sendResponse(taskResponse);
+            sendResponse(response);
         })();
         return true;
     }
