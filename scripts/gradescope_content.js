@@ -106,9 +106,8 @@ if (header && rows) {
                         console.log(response);
                     })();
                 }, 5000);
-        })();
-        }
-        );
+            })();
+        });
         addToTasksTd.appendChild(addToTasksButton);
         row.appendChild(addToTasksTd);
     }
