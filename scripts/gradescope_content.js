@@ -36,34 +36,77 @@ if (header && rows) {
         // add to DOM
         addToTasksButton.addEventListener("click", function() {
             (async () => {
-                // get task details from row
-                const dueDateString = row.querySelector("time.submissionTimeChart--dueDate")?.textContent;
-                const dueDate = dueDateString ? convertToDate(dueDateString) : null;
-                const taskDetails = {
-                    title: row.querySelector("th").textContent,
-                    status: "needsAction",
-                    due: dueDate?.toISOString(),
-                };
-                const response = await chrome.runtime.sendMessage(taskDetails);
-                console.log(response);
+                // get list options to add task to
+                const taskLists = await chrome.runtime.sendMessage({
+                    type: "getTaskLists",
+                });
+                const selected = taskLists.selected;
 
-                // display banner to change task list
+                // create banner to change task list
                 const banner = document.createElement("div");
                 banner.style.position = "fixed";
                 banner.style.bottom = "20px";
                 banner.style.left = "50%";
                 banner.style.transform = "translateX(-50%)";
-                banner.style.padding = "10px";
+                banner.style.padding = "3px";
                 banner.style.backgroundColor = "#f0f0f0";
                 banner.style.border = "1px solid #2d2d2d";
                 banner.style.borderRadius = "5px";
                 banner.style.zIndex = "1000";
-                banner.textContent = `Task added to ${response.taskLists[response.selected].title}.`;
+
+                // add text to banner
+                const bannerText = document.createElement("span");
+                bannerText.textContent = 'Add task to ';
+                bannerText.style.marginLeft = "5px";
+                banner.appendChild(bannerText);
+
+                // create select element to choose task list
+                const select = document.createElement("select");
+                select.style.marginLeft = "5px";
+                select.style.padding = "5px";
+                select.style.border = "1px solid #2d2d2d";
+                select.style.borderRadius = "5px";
+                select.style.backgroundColor = "#f0f0f0";
+                select.style.color = "#2d2d2d";
+                select.style.fontWeight = "bold";
+                select.style.cursor = "pointer";
+                select.style.textAlign = "center";
+
+                // create options for each task list
+                for (const list of taskLists.taskLists) {
+                    const option = document.createElement("option");
+                    option.value = list.id;
+                    option.textContent = list.title;
+                    select.appendChild(option);
+                }
+                // make the selected list the default
+                select.selectedIndex = selected;
+                banner.appendChild(select);
+                
                 document.body.appendChild(banner);
                 setTimeout(() => {
-                    banner.remove();
-                }, 3000);
-            })();
+                    (async () => {
+                        banner.remove();
+
+                        // get current selected value
+                        const selected = select.value;
+                        // get task details from row
+                        const dueDateString = row.querySelector("time.submissionTimeChart--dueDate")?.textContent;
+                        const dueDate = dueDateString ? convertToDate(dueDateString) : null;
+                        const taskDetails = {
+                            title: row.querySelector("th").textContent,
+                            status: "needsAction",
+                            due: dueDate?.toISOString(),
+                        };
+                        const response = await chrome.runtime.sendMessage({
+                            type: "addTask",
+                            taskListId: selected,
+                            ...taskDetails,
+                        });
+                        console.log(response);
+                    })();
+                }, 5000);
+        })();
         }
         );
         addToTasksTd.appendChild(addToTasksButton);
@@ -73,7 +116,6 @@ if (header && rows) {
 
 function convertToDate(dateString) {
     // Extract the month, day, time, and period (AM/PM) from a string
-    console.log(dateString);
     const regex = /(\w{3}) +(\d{1,2}) +at +(\d{1,2}:\d{2})(AM|PM)/;
     const match = dateString.match(regex);
   

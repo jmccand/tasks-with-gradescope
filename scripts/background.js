@@ -3,33 +3,43 @@ chrome.runtime.onMessage.addListener(
         (async () => {
             const token = await getAuthToken(true);
 
-            // get task lists
-            const taskListResponse = await fetch("https://www.googleapis.com/tasks/v1/users/@me/lists", {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-            });
-            const taskListJson = await taskListResponse.json();
+            if (request.type === "getTaskLists") {
+                const taskListResponse = await fetch("https://www.googleapis.com/tasks/v1/users/@me/lists", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                });
+                const taskListJson = await taskListResponse.json();
+                sendResponse({
+                    taskLists: taskListJson.items,
+                    selected: 0, // default to first list
+                });
+                return;
+            } else if (request.type === "addTask") {
+                // add to task list
+                const {
+                    taskListId,
+                    ...apiRequest
+                 } = request;
+                const taskResponse = await fetch(`https://www.googleapis.com/tasks/v1/lists/${taskListId}/tasks`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(apiRequest),
+                });
 
-            // add to task list
-            const taskListId = taskListJson.items[0].id;
-            const taskResponse = await fetch(`https://www.googleapis.com/tasks/v1/lists/${taskListId}/tasks`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(request)
-            });
-
-            const response = {
-                taskLists: taskListJson.items,
-                selected: 0,
-            };
-            
-            sendResponse(response);
+                const response = {
+                    success: taskResponse.ok,
+                    status: taskResponse.status,
+                    statusText: taskResponse.statusText,
+                };
+                
+                sendResponse(response);
+            }
         })();
         return true;
     }
