@@ -1,3 +1,7 @@
+chrome.action.onClicked.addListener(function() {
+    chrome.tabs.create({url: 'index.html'});
+});
+
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         (async () => {
