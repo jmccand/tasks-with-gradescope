@@ -1,5 +1,5 @@
 chrome.action.onClicked.addListener(function() {
-    chrome.tabs.create({url: 'index.html'});
+    chrome.tabs.create({url: 'nuxt-app/dist/index.html'});
 });
 
 chrome.runtime.onMessage.addListener(
