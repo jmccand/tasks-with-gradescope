@@ -41,7 +41,7 @@ if (header && rows) {
                     type: "getTaskLists",
                 });
                 const selected = taskLists.selected;
-
+                
                 // create banner to change task list
                 const banner = document.createElement("div");
                 banner.style.position = "fixed";
@@ -103,7 +103,6 @@ if (header && rows) {
                             taskListId: selected,
                             ...taskDetails,
                         });
-                        console.log(response);
                     })();
                 }, 5000);
             })();

@@ -2,17 +2,36 @@
 import TaskList from '~/components/TaskList.vue'
 
 const taskLists = ref([
-  [
-    { id: 1, name: 'Task 1' },
-    { id: 2, name: 'Task 2' }
-  ],
-  [
-    { id: 3, name: 'Task 3' },
-    { id: 4, name: 'Task 4' }
-  ]
+  {
+    id: 'test',
+    title: 'Default Task List'
+  }
 ])
+
+const tasks = ref({
+  test: [
+    {
+      id: 'test-task',
+      name: 'Test Task'
+    }
+  ]
+})
 </script>
 
 <template>
-  <TaskList v-for="tasks in taskLists" :tasks="tasks" :key="tasks[0].id" />
+  <TaskList v-for="taskList in taskLists" :taskList="taskList" :tasks="tasks[taskList.id]" :key="taskList.id" />
 </template>
+
+<script>
+(async () => {
+  const taskListsResponse = await chrome.runtime.sendMessage({
+    type: "getTaskLists"
+  })
+  if (!taskListsResponse.ok) {
+    console.error("Failed to get task lists")
+    return
+  }
+  taskLists.value = await taskListsResponse.json()
+  console.log(taskLists.value)
+})()
+</script>
