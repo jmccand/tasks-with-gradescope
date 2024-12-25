@@ -1,7 +1,3 @@
-chrome.action.onClicked.addListener(function() {
-    chrome.tabs.create({url: 'nuxt-app/dist/index.html'});
-});
-
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         (async () => {
