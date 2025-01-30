@@ -41,7 +41,7 @@ if (header && rows) {
                     type: "getTaskLists",
                 });
                 const selected = taskLists.selected;
-                
+
                 // create banner to change task list
                 const banner = document.createElement("div");
                 banner.style.position = "fixed";
@@ -82,7 +82,7 @@ if (header && rows) {
                 // make the selected list the default
                 select.selectedIndex = selected;
                 banner.appendChild(select);
-                
+
                 document.body.appendChild(banner);
                 setTimeout(() => {
                     (async () => {
@@ -93,8 +93,9 @@ if (header && rows) {
                         // get task details from row
                         const dueDateString = row.querySelector("time.submissionTimeChart--dueDate")?.textContent;
                         const dueDate = dueDateString ? convertToDate(dueDateString) : null;
+                        const course = document.querySelector("div.sidebar--subtitle").textContent;
                         const taskDetails = {
-                            title: row.querySelector("th").textContent,
+                            title: `${course}: ${row.querySelector("th").textContent}`,
                             status: "needsAction",
                             due: dueDate?.toISOString(),
                         };
@@ -116,17 +117,17 @@ function convertToDate(dateString) {
     // Extract the month, day, time, and period (AM/PM) from a string
     const regex = /(\w{3}) +(\d{1,2}) +at +(\d{1,2}:\d{2})(AM|PM)/;
     const match = dateString.match(regex);
-  
+
     if (!match) {
       throw new Error("Invalid date format");
     }
-  
+
     const [_, month, day, time, period] = match;
-  
+
     // Construct a Date string with the current year
     const currentYear = new Date().getFullYear();
     const dateStr = `${month} ${day} ${currentYear} ${time} ${period}`;
-  
+
     // Parse the date string into a Date object
     return new Date(dateStr);
   }
