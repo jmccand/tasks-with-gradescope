@@ -12,9 +12,17 @@ chrome.runtime.onMessage.addListener(
                     },
                 });
                 const taskListJson = await taskListResponse.json();
+                // get the selected task list from storage
+                const selected = await new Promise(resolve => {
+                    chrome.storage.sync.get("selectedTaskList", (result) => {
+                        if (result.selectedTaskList < taskListJson.items.length) {
+                            resolve(result.selectedTaskList);
+                        }
+                    });
+                });
                 sendResponse({
                     taskLists: taskListJson.items,
-                    selected: 0, // default to first list
+                    selected: selected
                 });
                 return;
             } else if (request.type === "addTask") {
@@ -37,8 +45,11 @@ chrome.runtime.onMessage.addListener(
                     status: taskResponse.status,
                     statusText: taskResponse.statusText,
                 };
-                
+
                 sendResponse(response);
+            } else if (request.type === "updateSelectedTaskList") {
+                chrome.storage.sync.set({ selectedTaskList: request.selectedTaskList });
+                sendResponse({ success: true });
             }
         })();
         return true;
@@ -56,4 +67,3 @@ function getAuthToken(interactive) {
       });
     });
   }
-  

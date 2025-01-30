@@ -90,9 +90,17 @@ if (header && rows) {
 
                         // get current selected value
                         const selected = select.value;
+                        // get the index of this selected
+                        const selectedIndex = select.selectedIndex;
+                        // update selected tasks list
+                        await chrome.runtime.sendMessage({
+                            type: "updateSelectedTaskList",
+                            selectedTaskList: selectedIndex,
+                        });
                         // get task details from row
                         const dueDateString = row.querySelector("time.submissionTimeChart--dueDate")?.textContent;
                         const dueDate = dueDateString ? convertToDate(dueDateString) : null;
+                        // get course title
                         const course = document.querySelector("div.sidebar--subtitle").textContent;
                         const taskDetails = {
                             title: `${course}: ${row.querySelector("th").textContent}`,
